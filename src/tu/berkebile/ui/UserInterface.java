@@ -1,4 +1,6 @@
-package tu.berkebile;
+package tu.berkebile.ui;
+
+import tu.berkebile.science.*;
 
 public class UserInterface {
 	
@@ -18,7 +20,7 @@ public class UserInterface {
 		
 		Firedanger	today = new Firedanger();
 		
-		double index = today.getFireDangerIndex(dryBulbTemperature, wetBulbTemperature, snowOnTheGround, precipitation,
+		SpreadIndexVector index = today.getFireDangerIndexVector(dryBulbTemperature, wetBulbTemperature, snowOnTheGround, precipitation,
 				windSpeed, herbState, buildupIndexYesterday);
 		
 		System.out.println("The fire danger index is " + index + ".");
