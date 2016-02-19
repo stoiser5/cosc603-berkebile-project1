@@ -2,28 +2,28 @@ package tu.berkebile.ui;
 
 import tu.berkebile.science.*;
 
+
 public class UserInterface {
 	
-
 	public static void main(String[] args) {
 		
-		double dryBulbTemperature = 10.0;
-		double wetBulbTemperature = 20;
+		// user data needed for fire danger determination
+		double dryBulbTemperature = 60.0;  //deg Fahrenheit
+		double wetBulbTemperature = 40.;
 		boolean snowOnTheGround = false;
-		double precipitation = 1.5;
-		double windSpeed = 20.;
-		int herbState = 3;
-		double buildupIndexYesterday = 1.5;
-		
-		//getFireDangerIndex(double dryBulbTemperature, double wetBulbTemperature, boolean snowOnTheGround, double precipitation, 
-		//		double windSpeed, int herbState, double buildupIndexYesterday
+		double precipitation = 0.2;  // inches
+		double windSpeed = 20.;  // miles per hour
+		HerbState herbState = HerbState.TRANSITION; // CURED, TRANSITION, or GREEN
+		double buildupIndexYesterday = 10.;
+				
 		
 		Firedanger	today = new Firedanger();
 		
-		SpreadIndexVector index = today.getFireDangerIndexVector(dryBulbTemperature, wetBulbTemperature, snowOnTheGround, precipitation,
+		SpreadIndexVector index = today.getFireDangerIndexVector(dryBulbTemperature, wetBulbTemperature, snowOnTheGround, precipitation, 
 				windSpeed, herbState, buildupIndexYesterday);
 		
-		System.out.println("The fire danger index is " + index + ".");
+		// print fire danger indexes
+		index.printIndexes();
 
 	}
 
