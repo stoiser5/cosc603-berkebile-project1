@@ -7,11 +7,13 @@ public class UserInterface {
 	
 	/**
 	 * The main method: serves to collect measurements and indexes needed to calculate fire danger indexes.
-	 *
-	 * @param args args
+	 * These measurements are collected and described in <CODE>Condition.java</CODE>.
+	 * @see Condition
 	 * @see Firedanger
 	 * @see SpreadIndexVector
 	 * @see HerbState
+	 * 
+	 * @param args
 	 */
 	public static void main(String[] args) {
 		
@@ -24,11 +26,12 @@ public class UserInterface {
 		HerbState herbState = HerbState.TRANSITION; // CURED, TRANSITION or GREEN
 		double buildupIndexYesterday = 10.;
 				
+		Condition currentConditions = new Condition(dryBulbTemperature, wetBulbTemperature, 
+				snowOnTheGround, precipitation, windSpeed, herbState, buildupIndexYesterday); 
 		
 		Firedanger	today = new Firedanger();
 		
-		SpreadIndexVector index = today.getFireDangerIndexVector(dryBulbTemperature, wetBulbTemperature, snowOnTheGround, precipitation, 
-				windSpeed, herbState, buildupIndexYesterday);
+		SpreadIndexVector index = today.getFireDangerIndexVector(currentConditions);
 		
 		/** print out fire danger indexes */
 		index.printIndexes();

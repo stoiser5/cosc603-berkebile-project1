@@ -1,5 +1,7 @@
 package tu.berkebile.science;
 
+import tu.berkebile.ui.Condition;
+
 /**
  * Includes methods to determine seven indexes used in the past by the Forest Service (US Department of Agriculture) 
  * to characterize the danger of forest fire spread:  
@@ -48,28 +50,16 @@ public class Firedanger {
 
 
 	/**
-	 * Gets the fire danger index vector.
-	 *
-	 * @param dryBulbTemperature The dry-bulb temperature (DBT) is the temperature of air measured
-	 *                           by a thermometer freely exposed to the air but shielded from radiation
-	 *                           and moisture
-	 * @param wetBulbTemperature The temperature a parcel of air would have if it were cooled to saturation 
-	 *                           (100% relative humidity).
-	 * @param snowOnTheGround a value of <code>true</code> means there is snow lying on the ground.
-	 * @param precipitation Amount of rain in the last 24 hours measured in inches.
-	 * @param windSpeed Current windspeed in miles per hour.
-	 * @param herbState the herb state of the district(either cured, transition, green).
-	 * @param buildupIndexYesterday Yesterdays BUI reflecting the combined cumulative effects of daily drying 
-	 *                              and precipitation in fuels with a 10 day time lag constant.
+	 * Gets the fire danger index vector depending on the current environmental conditions.
 	 * 
+	 * @param currentConditions current environmental conditions
 	 * @return the fire danger index vector containing the seven fire danger indexes.
 	 */
-	public SpreadIndexVector getFireDangerIndexVector(double dryBulbTemperature, double wetBulbTemperature, boolean snowOnTheGround, double precipitation, 
-			double windSpeed, HerbState herbState, double buildupIndexYesterday) {
+	public SpreadIndexVector getFireDangerIndexVector(Condition currentConditions) {
 
 		double fineFuelMoisture=0.;
 		double adjustedFuelMoisture=0;
-		double buildupIndex=buildupIndexYesterday;
+		double buildupIndex=currentConditions.getBuildupIndexYesterday();
 		double timberSpreadIndex=0;
 		double grassSpreadIndex=0;
 		double dryingFactor=0;
@@ -77,30 +67,32 @@ public class Firedanger {
 
 
 		/** fire danger is zero when snow on the ground */ 
-		if (snowOnTheGround == false){
+		if (currentConditions.isSnowOnTheGround() == false){
 
-			fineFuelMoisture = calculateFineFuelMoisture(dryBulbTemperature, wetBulbTemperature, herbState);
+			fineFuelMoisture = calculateFineFuelMoisture(currentConditions.getDryBulbTemperature(), 
+					currentConditions.getWetBulbTemperature(), currentConditions.getHerbState());
 
 			dryingFactor = calculateDryingFactor(fineFuelMoisture); 
 
-			if (precipitation > limitPrecipitation){
-				buildupIndex = adjustBuildupIndex(buildupIndexYesterday, precipitation) + dryingFactor;
+			if (currentConditions.getPrecipitation() > limitPrecipitation){
+				buildupIndex = adjustBuildupIndex(currentConditions.getBuildupIndexYesterday(),
+						currentConditions.getPrecipitation()) + dryingFactor;
 			}
 			else{
-				buildupIndex = buildupIndexYesterday + dryingFactor;
+				buildupIndex = currentConditions.getBuildupIndexYesterday() + dryingFactor;
 			}
 
 			adjustedFuelMoisture = calculateAdjustedFuelMoisture (fineFuelMoisture, buildupIndex);
 
-			grassSpreadIndex = calculateGrassSpreadIndex(fineFuelMoisture, adjustedFuelMoisture, windSpeed);
+			grassSpreadIndex = calculateGrassSpreadIndex(fineFuelMoisture, adjustedFuelMoisture, currentConditions.getWindSpeed());
 
-			timberSpreadIndex = calculateTimberSpreadIndex(adjustedFuelMoisture, windSpeed);	
+			timberSpreadIndex = calculateTimberSpreadIndex(adjustedFuelMoisture, currentConditions.getWindSpeed());	
 
 			fireLoadIndex = calculateFireLoadIndex(timberSpreadIndex, buildupIndex);
 		}
 		/** update buildupIndex if it has rained significantly */
-		else if (precipitation > limitPrecipitation){
-			buildupIndex = adjustBuildupIndex(buildupIndexYesterday, precipitation); 		
+		else if (currentConditions.getPrecipitation() > limitPrecipitation){
+			buildupIndex = adjustBuildupIndex(currentConditions.getBuildupIndexYesterday(), currentConditions.getPrecipitation()); 		
 		}
 
 		return new SpreadIndexVector(fineFuelMoisture, adjustedFuelMoisture, dryingFactor, 
